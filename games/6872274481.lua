@@ -22604,8 +22604,19 @@ run(function()
 end)
 
 run(function()
-	local privateFunc = loadstring(readfile('newvape/games/private.lua'))()
-	if type(privateFunc) == 'function' then
-		privateFunc(vape, run, bedwars, entitylib, lplr, inputService, runService, store, playersService, replicatedStorage, tweenService, httpService, textChatService, collectionService, contextActionService, guiService, coreGui, starterGui, lightingService, gameCamera, entitylib, targetinfo, sessioninfo, uipallet, tween, color, prediction, getfontsize, getcustomasset, vapeEvents, isnetworkowner, assetfunction, VirtualInputManager)
+	local privateChunk, privateErr = loadstring(readfile('newvape/games/private.lua'), 'private')
+	if not privateChunk then
+		warn('[SkidV4] failed to compile private.lua: '..tostring(privateErr))
+		return
+	end
+
+	local success, privateResult = pcall(privateChunk)
+	if not success then
+		warn('[SkidV4] failed to run private.lua: '..tostring(privateResult))
+		return
+	end
+
+	if type(privateResult) == 'function' then
+		privateResult(vape, run, bedwars, entitylib, lplr, inputService, runService, store, playersService, replicatedStorage, tweenService, httpService, textChatService, collectionService, contextActionService, guiService, coreGui, starterGui, lightingService, gameCamera, entitylib, targetinfo, sessioninfo, uipallet, tween, color, prediction, getfontsize, getcustomasset, vapeEvents, isnetworkowner, assetfunction, VirtualInputManager)
 	end
 end)
