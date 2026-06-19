@@ -22605,7 +22605,7 @@ end)
 
 run(function()
 	local privateFunc = loadstring(readfile('newvape/games/private.lua'))()
-	if privateFunc then
+	if type(privateFunc) == 'function' then
 		privateFunc(vape, run, bedwars, entitylib, lplr, inputService, runService, store, playersService, replicatedStorage, tweenService, httpService, textChatService, collectionService, contextActionService, guiService, coreGui, starterGui, lightingService, gameCamera, entitylib, targetinfo, sessioninfo, uipallet, tween, color, prediction, getfontsize, getcustomasset, vapeEvents, isnetworkowner, assetfunction, VirtualInputManager)
 	end
 end)
