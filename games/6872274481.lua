@@ -5368,7 +5368,7 @@ run(function()
 end)
 
 run(function()
-	local SkinChanger
+	local SkinChangerV2
 	local AeryToggle
 	local AeryDropdown
 	local skinTask = 0
@@ -5429,7 +5429,7 @@ run(function()
 	end
 
 	local function shouldUseAcademyAery()
-		return SkinChanger.Enabled and AeryToggle and AeryToggle.Enabled and AeryDropdown and AeryDropdown.Value == "Academy Aery"
+		return SkinChangerV2.Enabled and AeryToggle and AeryToggle.Enabled and AeryDropdown and AeryDropdown.Value == "Academy Aery"
 	end
 
 	local function refreshAerySkin()
@@ -5441,22 +5441,22 @@ run(function()
 		applyAcademyAery()
 	end
 
-	SkinChanger = vape.Categories.Render:CreateModule({
-		Name = "SkinChanger",
+	SkinChangerV2 = vape.Categories.Render:CreateModule({
+		Name = "SkinChangerV2",
 		Function = function(callback)
 			skinTask += 1
 			local currentTask = skinTask
 			aeryEquipped = false
 
 			if callback then
-				SkinChanger:Clean(workspace.ChildAdded:Connect(function(child)
+				SkinChangerV2:Clean(workspace.ChildAdded:Connect(function(child)
 					if shouldUseAcademyAery() and isAeryButterfly(child) then
 						task.defer(refreshAerySkin)
 					end
 				end))
 
 				task.spawn(function()
-					while SkinChanger.Enabled and currentTask == skinTask do
+					while SkinChangerV2.Enabled and currentTask == skinTask do
 						if shouldUseAcademyAery() then
 							refreshAerySkin()
 						end
@@ -5468,7 +5468,7 @@ run(function()
 		Tooltip = "Changes supported kit skins."
 	})
 
-	AeryToggle = SkinChanger:CreateToggle({
+	AeryToggle = SkinChangerV2:CreateToggle({
 		Name = "Aery",
 		Function = function(callback)
 			aeryEquipped = false
@@ -5481,7 +5481,7 @@ run(function()
 		end
 	})
 
-	AeryDropdown = SkinChanger:CreateDropdown({
+	AeryDropdown = SkinChangerV2:CreateDropdown({
 		Name = "Aery Skin",
 		List = {"Default", "Academy Aery"},
 		Visible = false,
