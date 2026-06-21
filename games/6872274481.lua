@@ -5360,11 +5360,135 @@ run(function()
         Darker = true
     })
 
-    task.defer(function()
-        if Color and Color.Object then
-            Color.Object.Visible = Background.Enabled  
-        end
-    end)
+	task.defer(function()
+		if Color and Color.Object then
+			Color.Object.Visible = Background.Enabled  
+		end
+	end)
+end)
+
+run(function()
+	local SkinChanger
+	local AeryToggle
+	local AeryDropdown
+	local skinTask = 0
+	local ModelNames = {"AeryButterflyPurple", "AeryButterflyValentine", "AeryButterfly"}
+
+	local function isAeryButterfly(model)
+		return model and table.find(ModelNames, model.Name) ~= nil
+	end
+
+	local function getAeryPalette()
+		local assets = replicatedStorage:FindFirstChild("Assets")
+		local effects = assets and assets:FindFirstChild("Effects")
+		local butterfly = effects and effects:FindFirstChild("AeryButterflyPurple")
+		local body = butterfly and butterfly:FindFirstChild("Body")
+		local emitter = body and body:FindFirstChild("ParticleEmitter")
+		if not (body and emitter) then return end
+		return body.Color, emitter.Color
+	end
+
+	local function unlockAndEquipAerySkin()
+		pcall(function()
+			local playerScripts = lplr:FindFirstChild("PlayerScripts")
+			if not (playerScripts and playerScripts:FindFirstChild("TS")) then return end
+
+			local clientStore = require(lplr.PlayerScripts.TS.ui.store).ClientStore
+			local state = clientStore:getState()
+			if state.Bedwars and state.Bedwars.ownedKitSkins and not table.find(state.Bedwars.ownedKitSkins, "aery_academy") then
+				table.insert(state.Bedwars.ownedKitSkins, "aery_academy")
+			end
+
+			local Knit = require(replicatedStorage.rbxts_include.node_modules["@easy-games"].knit.src.Knit.KnitClient)
+			local controller = Knit.Controllers.KitSkinController
+			if controller then
+				controller:equipKitSkin("aery", "aery_academy")
+			end
+		end)
+	end
+
+	local function applyAcademyAery()
+		local partColor, particleColor = getAeryPalette()
+		if not (partColor and particleColor) then return end
+
+		for _, butterfly in workspace:GetChildren() do
+			if isAeryButterfly(butterfly) then
+				for _, partName in {"Body", "LeftWing", "RightWing"} do
+					local part = butterfly:FindFirstChild(partName)
+					if part then
+						part.Color = partColor
+						local emitter = part:FindFirstChild("ParticleEmitter")
+						if emitter then
+							emitter.Color = particleColor
+						end
+					end
+				end
+			end
+		end
+	end
+
+	local function shouldUseAcademyAery()
+		return SkinChanger.Enabled and AeryToggle and AeryToggle.Enabled and AeryDropdown and AeryDropdown.Value == "Academy Aery"
+	end
+
+	local function refreshAerySkin()
+		if not shouldUseAcademyAery() then return end
+		unlockAndEquipAerySkin()
+		applyAcademyAery()
+	end
+
+	SkinChanger = vape.Categories.Render:CreateModule({
+		Name = "SkinChanger",
+		Function = function(callback)
+			skinTask += 1
+			local currentTask = skinTask
+
+			if callback then
+				SkinChanger:Clean(workspace.ChildAdded:Connect(function(child)
+					if shouldUseAcademyAery() and isAeryButterfly(child) then
+						task.defer(refreshAerySkin)
+					end
+				end))
+
+				task.spawn(function()
+					while SkinChanger.Enabled and currentTask == skinTask do
+						if shouldUseAcademyAery() then
+							refreshAerySkin()
+						end
+						task.wait(0.2)
+					end
+				end)
+			end
+		end,
+		Tooltip = "Changes supported kit skins."
+	})
+
+	AeryToggle = SkinChanger:CreateToggle({
+		Name = "Aery",
+		Function = function(callback)
+			if AeryDropdown and AeryDropdown.Object then
+				AeryDropdown.Object.Visible = callback
+			end
+			if callback then
+				refreshAerySkin()
+			end
+		end
+	})
+
+	AeryDropdown = SkinChanger:CreateDropdown({
+		Name = "Aery Skin",
+		List = {"Default", "Academy Aery"},
+		Visible = false,
+		Function = function()
+			refreshAerySkin()
+		end
+	})
+
+	task.defer(function()
+		if AeryDropdown and AeryDropdown.Object then
+			AeryDropdown.Object.Visible = AeryToggle.Enabled
+		end
+	end)
 end)
 
 run(function()
