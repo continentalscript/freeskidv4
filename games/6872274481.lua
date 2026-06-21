@@ -5372,6 +5372,7 @@ run(function()
 	local AeryToggle
 	local AeryDropdown
 	local skinTask = 0
+	local aeryEquipped = false
 	local ModelNames = {"AeryButterflyPurple", "AeryButterflyValentine", "AeryButterfly"}
 
 	local function isAeryButterfly(model)
@@ -5433,7 +5434,10 @@ run(function()
 
 	local function refreshAerySkin()
 		if not shouldUseAcademyAery() then return end
-		unlockAndEquipAerySkin()
+		if not aeryEquipped then
+			unlockAndEquipAerySkin()
+			aeryEquipped = true
+		end
 		applyAcademyAery()
 	end
 
@@ -5442,6 +5446,7 @@ run(function()
 		Function = function(callback)
 			skinTask += 1
 			local currentTask = skinTask
+			aeryEquipped = false
 
 			if callback then
 				SkinChanger:Clean(workspace.ChildAdded:Connect(function(child)
@@ -5466,6 +5471,7 @@ run(function()
 	AeryToggle = SkinChanger:CreateToggle({
 		Name = "Aery",
 		Function = function(callback)
+			aeryEquipped = false
 			if AeryDropdown and AeryDropdown.Object then
 				AeryDropdown.Object.Visible = callback
 			end
@@ -5480,6 +5486,7 @@ run(function()
 		List = {"Default", "Academy Aery"},
 		Visible = false,
 		Function = function()
+			aeryEquipped = false
 			refreshAerySkin()
 		end
 	})
